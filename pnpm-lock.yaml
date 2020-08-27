@@ -1,6 +1,7 @@
 dependencies:
   preact: 10.4.7
   preact-router: 3.2.1_preact@10.4.7
+  react-icons: 3.11.0
 devDependencies:
   '@typescript-eslint/eslint-plugin': 3.9.1_bfaa9f11a80e0b0e07bd4175641995de
   '@typescript-eslint/parser': 3.9.1_eslint@7.7.0+typescript@4.0.2
@@ -2291,7 +2292,6 @@ packages:
     resolution:
       integrity: sha1-yjw2iKTpzzpM2nd9xNy8cTJJz3M=
   /camelcase/5.3.1:
-    dev: true
     engines:
       node: '>=6'
     resolution:
@@ -7625,6 +7625,14 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==
+  /react-icons/3.11.0:
+    dependencies:
+      camelcase: 5.3.1
+    dev: false
+    peerDependencies:
+      react: '*'
+    resolution:
+      integrity: sha512-JRgiI/vdF6uyBgyZhVyYJUZAop95Sy4XDe/jmT3R/bKliFWpO/uZBwvSjWEdxwzec7SYbEPNPck0Kff2tUGM2Q==
   /react-is/16.13.1:
     dev: true
     resolution:
@@ -9974,5 +9982,6 @@ specifiers:
   preact-render-to-string: ^5.1.10
   preact-router: ^3.2.1
   prettier: ^2.0.5
+  react-icons: ^3.11.0
   sirv-cli: ^1.0.6
   typescript: ^4.0.2

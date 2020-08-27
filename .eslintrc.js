@@ -23,6 +23,7 @@ module.exports = {
     },
     rules: {
         "react/no-unknown-property": ["error", { ignore: ["class"] }],
+        "indent": ["error", 2],
     },
     settings: {
         react: {

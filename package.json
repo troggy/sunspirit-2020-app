@@ -8,7 +8,7 @@
     "build": "preact build",
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint": "xo --fix",
     "test": "jest ./tests"
   },
   "husky": {
@@ -17,31 +17,43 @@
     }
   },
   "lint-staged": {
-    "*.{css,md,scss}": "prettier --write",
-    "*.{js,jsx,ts,tsx}": "eslint --fix"
+    "*.{js,jsx,ts,tsx}": "xo --fix"
   },
-  "eslintIgnore": [
-    "build/*"
-  ],
+  "xo": {
+    "extends": "xo-react",
+    "rules": {
+      "import/no-anonymous-default-export": "off"
+    },
+    "settings": {
+      "react": {
+        "pragma": "h",
+        "version": "detect"
+      }
+    },
+    "space": true,
+    "prettier": true
+  },
+  "prettier": {
+    "singleQuote": false,
+    "bracketSpacing": true
+  },
   "dependencies": {
     "preact": "^10.4.7",
     "preact-router": "^3.2.1",
-    "react-icons": "^3.11.0",
-    "tabletop": "^1.6.3"
+    "tabletop": "^1.6.3",
+    "xo": "^0.33.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.9.1",
-    "@typescript-eslint/parser": "^3.9.1",
-    "eslint": "^7.7.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "@teamsupercell/typings-for-css-modules-loader": "^2.3.0",
+    "@types/react": "^16.9.48",
+    "css-loader": "^4.2.2",
+    "eslint-config-xo-react": "^0.23.0",
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.1.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "preact-cli": "^3.0.1",
     "preact-render-to-string": "^5.1.10",
-    "prettier": "^2.0.5",
     "sirv-cli": "^1.0.6",
     "typescript": "^4.0.2"
   }

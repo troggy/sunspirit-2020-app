@@ -53,5 +53,6 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
         "esModuleInterop": true
     },
-    "include": ["src/**/*.tsx", "src/**/*.ts"]
+    "exclude": ["node_modules"],
+    "include": ["src/**/*.tsx", "src/**/*.ts", "src/custom.d.ts"]
 }

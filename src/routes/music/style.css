@@ -3,6 +3,16 @@
   width: 100%;
   min-height: 100%;
   display: flex;
+  flex-direction: column;
+}
+
+.homeLoading {
+  height: 100%;
+}
+
+.musicEvent {
+  display: flex;
+  justify-content: space-between;
 }
 
 .loader {
@@ -11,18 +21,22 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  align-self: center;
+  animation: Pulsate 1s linear infinite;
 }
 
 .loader svg {
   width: 100px;
   height: 100px;
-  color: white;
-  animation: Pulsate 1s linear infinite;
 }
 
 @keyframes Pulsate {
-  from { opacity: 0.6; }
-  50% { opacity: 0; }
-  to { opacity: 0.6; }
+  from {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.6;
+  }
 }

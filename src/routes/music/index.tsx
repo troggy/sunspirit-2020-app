@@ -1,9 +1,10 @@
 import { FunctionalComponent, h } from "preact";
 import * as style from "./style.css";
 import { useState, useEffect } from "preact/hooks";
-import { CgVinyl } from 'react-icons/cg';
+import Loading from "../../components/loading";
 
-const Tabletop = require('tabletop');
+// eslint-disable-next-line  @typescript-eslint/no-var-requires
+const Tabletop = require("tabletop");
 
 type Artist = {
   name: string;
@@ -17,16 +18,30 @@ type Artist = {
 
 type StageProps = {
   name: string;
-  artists: any[];
+  artists: Artist[];
 };
 
-const Stage: FunctionalComponent<StageProps> = ({ name, artists }) => {
+const MusicEvent = ({ artist }: { artist: Artist }) => {
+  return (
+    <div className={style.musicEvent}>
+      <div>{artist.name}</div>
+      <div>{artist.stage}</div>
+    </div>
+  );
+};
+
+const Stage: FunctionalComponent<StageProps> = ({
+  name,
+  artists
+}: StageProps) => {
   return (
     <div>
       <h3>{name}</h3>
-      {artists.map(a => <div>{a.name}</div>)}
+      {artists.map((a) => (
+        <MusicEvent key={a.name} artist={a} />
+      ))}
     </div>
-  )
+  );
 };
 
 const Music: FunctionalComponent = () => {
@@ -34,24 +49,35 @@ const Music: FunctionalComponent = () => {
 
   useEffect(() => {
     Tabletop.init({
-      key: 'https://docs.google.com/spreadsheets/d/1fGLxOfXsMIIbz0KKjM6bj9ChBb1dMQTY9KxiVDOR8JI/edit?usp=sharing'
-    }
-    ).then(function (data: any, tabletop: any) {
-      const artists = data["Музыка"].all();
-      setData(artists.reduce((stages: any, artist: any) => ({
-        [artist.stage]: [...(stages[artist.stage] || []), artist]
-      }), {}));
-    })
+      key:
+        "https://docs.google.com/spreadsheets/d/1fGLxOfXsMIIbz0KKjM6bj9ChBb1dMQTY9KxiVDOR8JI/edit?usp=sharing"
+    }).then(function (data: any) {
+      const artists = data["Музыка"].all() as Artist[];
+      const artistsByDate: { [stage: string]: Artist[] } = {};
+
+      artists.forEach((artist) => {
+        artistsByDate[artist.performanceDate] = [
+          ...(artistsByDate[artist.performanceDate] || []),
+          artist
+        ];
+      });
+
+      setData(artistsByDate);
+    });
   }, []);
 
   return (
-    <div class={style.home}>
-      {!data && <div class={style.loader}>
-        <CgVinyl />
-      </div>}
-      {data && Object.entries(data).map(([name, artists]) => 
-          <Stage name={name} artists={artists} />
+    <div className={`${style.home} ${data ? "" : style.homeLoading}`}>
+      {!data && (
+        <div className={style.loader}>
+          <Loading />
+        </div>
       )}
+      {data &&
+        Object.keys(data)
+          .sort()
+          .filter((d) => Boolean(d))
+          .map((date) => <Stage key={date} name={date} artists={data[date]} />)}
     </div>
   );
 };

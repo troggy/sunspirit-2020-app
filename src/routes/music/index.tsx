@@ -68,11 +68,7 @@ const Music: FunctionalComponent = () => {
 
   return (
     <div className={`${style.home} ${data ? "" : style.homeLoading}`}>
-      {!data && (
-        <div className={style.loader}>
-          <Loading />
-        </div>
-      )}
+      {!data && <Loading />}
       {data &&
         Object.keys(data)
           .sort()

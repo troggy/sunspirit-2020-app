@@ -2,19 +2,7 @@ import { FunctionalComponent, h } from "preact";
 import * as style from "./style.css";
 import { useState, useEffect } from "preact/hooks";
 import Loading from "../../components/loading";
-
-// eslint-disable-next-line  @typescript-eslint/no-var-requires
-const Tabletop = require("tabletop");
-
-type Artist = {
-  name: string;
-  personaLink: string;
-  announcementLink: string;
-  sampleLink: string;
-  performanceDate: string;
-  imageLink: string;
-  stage: string;
-};
+import { Artist, readMusicSpreadsheet } from "../../lib/api";
 
 type StageProps = {
   name: string;
@@ -48,21 +36,18 @@ const Music: FunctionalComponent = () => {
   const [data, setData] = useState<{ [stage: string]: Artist[] } | null>(null);
 
   useEffect(() => {
-    Tabletop.init({
-      key:
-        "https://docs.google.com/spreadsheets/d/1fGLxOfXsMIIbz0KKjM6bj9ChBb1dMQTY9KxiVDOR8JI/edit?usp=sharing"
-    }).then(function (data: any) {
-      const artists = data["Музыка"].all() as Artist[];
+    void readMusicSpreadsheet().then((artists: Artist[]) => {
       const artistsByDate: { [stage: string]: Artist[] } = {};
 
       artists.forEach((artist) => {
-        artistsByDate[artist.performanceDate] = [
-          ...(artistsByDate[artist.performanceDate] || []),
-          artist
-        ];
+        if (!artistsByDate[artist.performanceDate]) {
+          artistsByDate[artist.performanceDate] = [];
+        }
+
+        artistsByDate[artist.performanceDate].push(artist);
       });
 
-      setData(artistsByDate);
+      return setData(artistsByDate);
     });
   }, []);
 

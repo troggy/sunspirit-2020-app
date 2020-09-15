@@ -1,17 +1,9 @@
+import { Artist } from "./types";
+
 // eslint-disable-next-line  @typescript-eslint/no-var-requires
 const Tabletop = require("tabletop");
 
-export type Artist = {
-  name: string;
-  personaLink: string;
-  announcementLink: string;
-  sampleLink: string;
-  performanceDate: string;
-  imageLink: string;
-  stage: string;
-};
-
-export const readMusicSpreadsheet = async () => {
+export const readMusicSpreadsheet = async (): Promise<Artist[]> => {
   return Tabletop.init({
     key:
       "https://docs.google.com/spreadsheets/d/1fGLxOfXsMIIbz0KKjM6bj9ChBb1dMQTY9KxiVDOR8JI/edit?usp=sharing"

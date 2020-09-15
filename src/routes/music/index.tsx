@@ -2,7 +2,8 @@ import { FunctionalComponent, h } from "preact";
 import * as style from "./style.css";
 import { useState, useEffect } from "preact/hooks";
 import Loading from "../../components/loading";
-import { Artist, readMusicSpreadsheet } from "../../lib/api";
+import { Artist } from "../../lib/types";
+import { Db } from "../../lib/db";
 
 type StageProps = {
   name: string;
@@ -33,32 +34,46 @@ const Stage: FunctionalComponent<StageProps> = ({
 };
 
 const Music: FunctionalComponent = () => {
-  const [data, setData] = useState<{ [stage: string]: Artist[] } | null>(null);
+  const [artistsByDate, setArtistsByDate] = useState<{
+    [stage: string]: Artist[];
+  } | null>(null);
+  const [artists, setArtists] = useState<Artist[]>([]);
 
   useEffect(() => {
-    void readMusicSpreadsheet().then((artists: Artist[]) => {
-      const artistsByDate: { [stage: string]: Artist[] } = {};
-
-      artists.forEach((artist) => {
-        if (!artistsByDate[artist.performanceDate]) {
-          artistsByDate[artist.performanceDate] = [];
-        }
-
-        artistsByDate[artist.performanceDate].push(artist);
+    void Db.init()
+      .then(async (db) => Promise.all([db, db.getArtists()]))
+      .then(async ([db, artists]) => {
+        setArtists(artists);
+        return db.reload();
       });
-
-      return setData(artistsByDate);
-    });
   }, []);
 
+  useEffect(() => {
+    if (!artists || artists.length === 0) return;
+
+    const artistsByDate: { [stage: string]: Artist[] } = {};
+
+    artists.forEach((artist) => {
+      if (!artistsByDate[artist.performanceDate]) {
+        artistsByDate[artist.performanceDate] = [];
+      }
+
+      artistsByDate[artist.performanceDate].push(artist);
+    });
+
+    setArtistsByDate(artistsByDate);
+  }, [artists]);
+
   return (
-    <div className={`${style.home} ${data ? "" : style.homeLoading}`}>
-      {!data && <Loading />}
-      {data &&
-        Object.keys(data)
+    <div className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}>
+      {!artistsByDate && <Loading />}
+      {artistsByDate &&
+        Object.keys(artistsByDate)
           .sort()
           .filter((d) => Boolean(d))
-          .map((date) => <Stage key={date} name={date} artists={data[date]} />)}
+          .map((date) => (
+            <Stage key={date} name={date} artists={artistsByDate[date]} />
+          ))}
     </div>
   );
 };

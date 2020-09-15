@@ -5,7 +5,8 @@ import { useState, useEffect } from "preact/hooks";
 const Loading = () => {
   const [delay, setDelay] = useState<boolean>(false);
   useEffect(() => {
-    setTimeout(() => setDelay(true), 1000);
+    const timeout = setTimeout(() => setDelay(true), 1000);
+    return () => clearTimeout(timeout);
   }, []);
 
   if (!delay) return <div />;

@@ -10,7 +10,7 @@ import {
   PlayerContext,
   PlayerContextType,
   defaultPlayerState
-} from "../../components/playerContext";
+} from "../../components/player-context";
 
 const Time = styled.div`
   width: 50px;

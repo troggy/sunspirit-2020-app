@@ -9,7 +9,8 @@
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch",
     "lint": "xo --fix",
-    "test": "jest ./tests"
+    "test": "jest ./tests",
+    "postinstall": "rm -rf node_modules/@types/styled-components/node_modules/@types/react && rm -rf node_modules/@types/hoist-non-react-statics/node_modules/@types/react"
   },
   "husky": {
     "hooks": {

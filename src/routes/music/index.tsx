@@ -89,7 +89,17 @@ const toDate = (time: string) => {
   return d;
 };
 
-const audio = new Audio();
+/* eslint-disable @typescript-eslint/no-empty-function */
+let audio = {
+  src: "",
+  pause: () => {},
+  play: () => {}
+};
+/* eslint-enable @typescript-eslint/no-empty-function */
+
+if (typeof window !== "undefined") {
+  audio = new Audio();
+}
 
 const onStop = () => audio.pause();
 

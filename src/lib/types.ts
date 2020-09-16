@@ -4,6 +4,7 @@ export type Artist = {
   announcementLink: string;
   sampleLink: string;
   performanceDate: string;
+  performanceTime: string;
   imageLink: string;
   stage: string;
 };

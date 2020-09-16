@@ -1,8 +1,9 @@
 import { h } from "preact";
 import { PlayIcon, StopIcon } from "./icons";
-import { useState } from "preact/hooks";
-import { useLayoutEffect } from "react";
+import { useState, useContext, useCallback, useMemo } from "preact/hooks";
 import styled from "styled-components";
+import { PlayerContext } from "../playerContext";
+import { useEffect } from "react";
 
 export type PlayButtonProps = {
   data: Blob;
@@ -19,22 +20,26 @@ const Button = styled.a`
 
 export default ({ data }: PlayButtonProps) => {
   const [playing, setPlaying] = useState<boolean>(false);
-  const [audio, setAudio] = useState<any>(null);
 
-  useLayoutEffect(() => {
-    setAudio(new Audio(URL.createObjectURL(data)));
-  }, [data]);
+  const { src, onPlay, onStop } = useContext(PlayerContext);
 
-  const togglePlay = () => {
+  const audioUrl = useMemo(() => URL.createObjectURL(data), [data]);
+
+  useEffect(() => {
+    if (src === audioUrl) return;
+    setPlaying(false);
+  }, [src, audioUrl]);
+
+  const togglePlay = useCallback(() => {
     if (playing) {
-      audio.pause();
+      onStop();
       setPlaying(false);
       return;
     }
 
-    audio.play();
     setPlaying(true);
-  };
+    onPlay(audioUrl);
+  }, [audioUrl, playing, onStop, onPlay]);
 
   return (
     <Button onClick={togglePlay}>

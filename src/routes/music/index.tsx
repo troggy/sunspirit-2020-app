@@ -1,16 +1,16 @@
 import { FunctionalComponent, h } from "preact";
 import * as style from "./style.css";
-import { useState, useEffect } from "preact/hooks";
+import { useState, useEffect, useCallback } from "preact/hooks";
 import Loading from "../../components/loading";
 import { ArtistRecord } from "../../lib/types";
 import { Db } from "../../lib/db";
 import PlayButton from "../../components/PlayButton";
 import styled from "styled-components";
-
-type StageProps = {
-  name: string;
-  artists: ArtistRecord[];
-};
+import {
+  PlayerContext,
+  PlayerContextType,
+  defaultPlayerState
+} from "../../components/playerContext";
 
 const Time = styled.div`
   width: 50px;
@@ -20,23 +20,46 @@ const ArtistName = styled.div`
   flex: 1;
 `;
 
-const StageName = styled.div``;
+const colors: { [name: string]: string } = {
+  электронная1: "#FF5C00"
+};
+
+const Badge = styled.span<{ bgColor: string }>`
+  padding: 0 4px;
+  border-radius: 2px;
+  height: 24px;
+  padding-top: 1px;
+  background-color: ${(props) => props.bgColor};
+`;
+
+const StageName = ({ name }: { name: string }) => {
+  return <Badge bgColor={colors[name]}>{name}</Badge>;
+};
 
 const PlayCell = styled.div`
   width: 34px;
 `;
 
-const MusicEvent = ({ artist }: { artist: ArtistRecord }) => {
+type MusicEventProps = {
+  artist: ArtistRecord;
+};
+
+const MusicEvent = ({ artist }: MusicEventProps) => {
   return (
     <div className={style.musicEvent}>
       <Time>{artist.performanceTime}</Time>
       <ArtistName>{artist.name}</ArtistName>
-      <StageName>{artist.stage}</StageName>
+      <StageName name={artist.stage} />
       <PlayCell>
         {artist.sampleBuffer && <PlayButton data={artist.sampleBuffer} />}
       </PlayCell>
     </div>
   );
+};
+
+type StageProps = {
+  name: string;
+  artists: ArtistRecord[];
 };
 
 const Stage: FunctionalComponent<StageProps> = ({
@@ -66,11 +89,38 @@ const toDate = (time: string) => {
   return d;
 };
 
+const audio = new Audio();
+
+const onStop = () => audio.pause();
+
 const Music: FunctionalComponent = () => {
   const [artistsByDate, setArtistsByDate] = useState<{
     [stage: string]: ArtistRecord[];
   } | null>(null);
   const [artists, setArtists] = useState<ArtistRecord[]>([]);
+  const [playerState, setPlayerState] = useState<PlayerContextType>(
+    defaultPlayerState
+  );
+
+  const onPlay = useCallback((src: string) => {
+    setPlayerState((playerState: PlayerContextType) => ({
+      ...playerState,
+      onPlay,
+      onStop,
+      src
+    }));
+    audio.pause();
+    audio.src = src;
+    void audio.play();
+  }, []);
+
+  useEffect(() => {
+    void setPlayerState((playerState: PlayerContextType) => ({
+      ...playerState,
+      onPlay,
+      onStop
+    }));
+  }, [onPlay]);
 
   useEffect(() => {
     void Db.init()
@@ -104,16 +154,20 @@ const Music: FunctionalComponent = () => {
   }, [artists]);
 
   return (
-    <div className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}>
-      {!artistsByDate && <Loading />}
-      {artistsByDate &&
-        Object.keys(artistsByDate)
-          .sort()
-          .filter((d) => Boolean(d))
-          .map((date) => (
-            <Stage key={date} name={date} artists={artistsByDate[date]} />
-          ))}
-    </div>
+    <PlayerContext.Provider value={playerState}>
+      <div
+        className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}
+      >
+        {!artistsByDate && <Loading />}
+        {artistsByDate &&
+          Object.keys(artistsByDate)
+            .sort()
+            .filter((d) => Boolean(d))
+            .map((date) => (
+              <Stage key={date} name={date} artists={artistsByDate[date]} />
+            ))}
+      </div>
+    </PlayerContext.Provider>
   );
 };
 

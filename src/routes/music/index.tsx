@@ -30,7 +30,10 @@ const ArtistName = styled.div`
 `;
 
 const colors: { [name: string]: string } = {
-  электронная1: "#FF5C00"
+  электр: "rgba(200,100,100,0.5)",
+  живая: "rgba(100,200,100,0.3)",
+  атмо: "rgba(100,100,200,0.3)",
+  альт: "rgba(200,200,100,0.3)"
 };
 
 const Badge = styled.span<{ bgColor: string }>`
@@ -298,7 +301,7 @@ const Music: FunctionalComponent = () => {
                   justifyContent: "space-between"
                 }}
               >
-                <h3>Sunspirit 2020</h3>
+                <h3>Музыка</h3>
                 <div>
                   {offline && <NoSignal />}
                   {!offline &&

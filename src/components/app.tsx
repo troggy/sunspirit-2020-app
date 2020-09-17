@@ -26,6 +26,28 @@ const App: FunctionalComponent = () => {
             <EventPage storeName="knowledge" timeColumnWidth="120px" />
           )}
         />
+        <Route
+          path="/theatre"
+          component={() => <EventPage storeName="theatre" />}
+        />
+        <Route
+          path="/specificHealing"
+          component={() => (
+            <EventPage storeName="specificHealing" timeColumnWidth="120px" />
+          )}
+        />
+        <Route
+          path="/popHealing"
+          component={() => (
+            <EventPage storeName="popHealing" timeColumnWidth="120px" />
+          )}
+        />
+        <Route
+          path="/musicHealing"
+          component={() => (
+            <EventPage storeName="musicHealing" timeColumnWidth="120px" />
+          )}
+        />
         <NotFoundPage default />
       </Router>
       <Nav />

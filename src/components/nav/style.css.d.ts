@@ -3,6 +3,7 @@ declare namespace StyleCssNamespace {
   export interface IStyleCss {
     active: string;
     nav: string;
+    nav1: string;
   }
 }
 

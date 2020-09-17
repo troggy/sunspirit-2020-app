@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "sunspirit-2020-app",
+  "name": "@troggy/sunspirit-2020-app",
   "description": "Unofficial app with information about SunSpirit 2020 Music Festival",
   "version": "1.0.0",
   "license": "MIT",
@@ -48,8 +48,7 @@
     "preact": "^10.4.7",
     "preact-router": "^3.2.1",
     "styled-components": "^5.2.0",
-    "tabletop": "^1.6.3",
-    "xo": "^0.33.0"
+    "tabletop": "^1.6.3"
   },
   "devDependencies": {
     "@teamsupercell/typings-for-css-modules-loader": "^2.3.0",
@@ -65,6 +64,7 @@
     "preact-cli": "^3.0.1",
     "preact-render-to-string": "^5.1.10",
     "sirv-cli": "^1.0.6",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "xo": "^0.33.0"
   }
 }

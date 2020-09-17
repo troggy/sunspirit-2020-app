@@ -7,6 +7,7 @@ import { Db } from "../../lib/db";
 import styled from "styled-components";
 import { check, watch } from "is-offline";
 import { NoSignal } from "../../components/icons";
+import { routes } from "../../components/nav";
 
 const Time = styled.div``;
 
@@ -142,7 +143,7 @@ const EventPage: FunctionalComponent<EventPageProps> = ({
               justifyContent: "space-between"
             }}
           >
-            <h3 />
+            <h3>{routes["/" + storeName]}</h3>
             <div>{offline && <NoSignal />}</div>
           </div>
 

@@ -18,6 +18,26 @@ interface ArtistsDbSchema extends DBSchema {
     key: string;
     indexes: { "by-date": Date };
   };
+  theatre: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
+  specificHealing: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
+  popHealing: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
+  musicHealing: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
 }
 
 const withDownloadedSample = async (artist: ArtistRecord) => {
@@ -43,9 +63,8 @@ export class Db {
   }
 
   static async init() {
-    const db = await openDB<ArtistsDbSchema>("sunspiritApp", 9, {
+    const db = await openDB<ArtistsDbSchema>("sunspiritApp", 10, {
       upgrade(db) {
-        console.log(db.objectStoreNames);
         if (!db.objectStoreNames.contains("artists")) {
           const artistsStore = db.createObjectStore("artists", {
             keyPath: "normalizedName"
@@ -62,6 +81,34 @@ export class Db {
 
         if (!db.objectStoreNames.contains("knowledge")) {
           const knowledgeStore = db.createObjectStore("knowledge", {
+            keyPath: "normalizedName"
+          });
+          knowledgeStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("theatre")) {
+          const knowledgeStore = db.createObjectStore("theatre", {
+            keyPath: "normalizedName"
+          });
+          knowledgeStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("specificHealing")) {
+          const knowledgeStore = db.createObjectStore("specificHealing", {
+            keyPath: "normalizedName"
+          });
+          knowledgeStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("popHealing")) {
+          const knowledgeStore = db.createObjectStore("popHealing", {
+            keyPath: "normalizedName"
+          });
+          knowledgeStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("musicHealing")) {
+          const knowledgeStore = db.createObjectStore("musicHealing", {
             keyPath: "normalizedName"
           });
           knowledgeStore.createIndex("by-date", "performanceDate");

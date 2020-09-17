@@ -1,17 +1,3 @@
-@font-face {
-  font-family: 'UbuntuRegular';
-  src: url('../assets/Ubuntu-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'UbuntuBold';
-  src: url('../assets/Ubuntu-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-}
-
 html,
 body {
   height: 100%;
@@ -19,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
   background: #000000;
-  font-family: "UbuntuRegular", "Helvetica Neue", arial, sans-serif;
+  font-family: "Helvetica Neue", arial, sans-serif;
   font-weight: 400;
   color: rgba(255, 255, 255, 1);
   -webkit-font-smoothing: antialiased;
@@ -27,7 +13,7 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: "UbuntuBold", "Helvetica Neue", arial, sans-serif;
+  font-family: "Helvetica Neue", arial, sans-serif;
   font-weight: 700;
 }
 

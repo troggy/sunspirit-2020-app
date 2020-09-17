@@ -5,6 +5,7 @@ import Music from "../routes/music";
 import NotFoundPage from "../routes/notfound";
 import Nav from "./nav";
 import EventPage from "../routes/EventPage";
+import FavEvents from "../routes/FavEvents";
 
 if ((module as any).hot) {
   // eslint-disable-next-line import/no-unassigned-import
@@ -48,6 +49,7 @@ const App: FunctionalComponent = () => {
             <EventPage storeName="musicHealing" timeColumnWidth="120px" />
           )}
         />
+        <Route path="/fav" component={() => <FavEvents />} />
         <NotFoundPage default />
       </Router>
       <Nav />

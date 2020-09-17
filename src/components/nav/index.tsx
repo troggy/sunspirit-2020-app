@@ -11,7 +11,8 @@ export const routes: { [name: string]: string } = {
   "/theatre": "Театральное искусство",
   "/specificHealing": "Specific Healing",
   "/popHealing": "Popular Healing",
-  "/musicHealing": "Music Healing"
+  "/musicHealing": "Music Healing",
+  "/fav": "⭐ Избранное"
 };
 
 const Pane = ({ close }: { close: (name: string) => void }) => {
@@ -35,7 +36,11 @@ const Pane = ({ close }: { close: (name: string) => void }) => {
       {Object.keys(routes).map((route) => (
         <Link
           key={route}
-          style={{ width: "100%", textAlign: "center" }}
+          style={{
+            width: "100%",
+            textAlign: "center",
+            marginTop: route === "/fav" ? 90 : 0
+          }}
           activeClassName={style.active}
           href={route}
           onClick={() => close(routes[route])}

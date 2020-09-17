@@ -13,7 +13,6 @@ import { Db } from "../../lib/db";
 import styled from "styled-components";
 import { check, watch } from "is-offline";
 import { NoSignal, StarIcon } from "../../components/icons";
-import { routes } from "../../components/nav";
 import { DbContext } from "../../components/db-context";
 import FavStar from "../../components/FavStar";
 
@@ -37,7 +36,7 @@ const Event = ({ event, timeColumnWidth }: EventProps) => {
       </Time>
       <ArtistName
         onClick={() =>
-          ctx?.db.toggleFav(ctx?.storeName, event).then(ctx?.refresh)
+          ctx?.db.toggleFav(event?.storeName, event).then(ctx?.refresh)
         }
       >
         {event.name}{" "}
@@ -87,19 +86,12 @@ const toDate = (time: string) => {
   return d;
 };
 
-type EventPageProps = {
-  storeName: string;
-  timeColumnWidth?: string;
-};
+type FavEventsProps = Record<string, unknown>;
 
-const EventPage: FunctionalComponent<EventPageProps> = ({
-  storeName,
-  timeColumnWidth
-}: EventPageProps) => {
+const FavEvents: FunctionalComponent<FavEventsProps> = () => {
   const [eventsByDate, setEventsByDate] = useState<{
     [stage: string]: ArtistRecord[];
   } | null>(null);
-  const [events, setEvents] = useState<ArtistRecord[]>([]);
   const [db, setDb] = useState<Db | null>(null);
   const [offline, setOffline] = useState<boolean>(false);
 
@@ -122,48 +114,59 @@ const EventPage: FunctionalComponent<EventPageProps> = ({
     return watch(setOffline);
   }, []);
 
-  useEffect(() => {
-    if (!db) return;
-    void db.getAll(storeName).then(async (events) => {
-      setEvents(events);
-      await db.reload(storeName);
-      setEvents(await db.getAll(storeName));
-    });
-  }, [storeName, db]);
-
-  useEffect(() => {
-    if (!events || events.length === 0) return;
-
-    const eventsByDate: { [stage: string]: ArtistRecord[] } = {};
-
-    events.forEach((event) => {
-      if (!eventsByDate[event.performanceDate]) {
-        eventsByDate[event.performanceDate] = [];
-      }
-
-      eventsByDate[event.performanceDate].push(event);
-    });
-
-    Object.keys(eventsByDate).forEach((date) => {
-      eventsByDate[date] = eventsByDate[date].sort((a, b) =>
-        toDate(a.performanceTime) > toDate(b.performanceTime) ? 1 : -1
-      );
-    });
-
-    setEventsByDate(eventsByDate);
-  }, [events]);
-
   const updateScreen = useCallback(() => {
     if (!db) return;
     (async () => {
-      setEvents(await db.getAll(storeName));
+      if (!db) return;
+      const events: ArtistRecord[][] = await Promise.all(
+        [
+          "artists",
+          "cinema",
+          "theatre",
+          "specificHealing",
+          "popHealing",
+          "musicHealing",
+          "knowledge"
+        ].map(async (storeName) => {
+          const entries = await db.getAll(storeName);
+          return entries.map((a) => ({
+            ...a,
+            storeName
+          }));
+        })
+      );
+      const favs = new Array<ArtistRecord>()
+        .concat(...events)
+        .filter((event) => event.fav);
+
+      const eventsByDate: { [stage: string]: ArtistRecord[] } = {};
+
+      favs.forEach((event) => {
+        if (!eventsByDate[event.performanceDate]) {
+          eventsByDate[event.performanceDate] = [];
+        }
+
+        eventsByDate[event.performanceDate].push(event);
+      });
+
+      Object.keys(eventsByDate).forEach((date) => {
+        eventsByDate[date] = eventsByDate[date].sort((a, b) =>
+          toDate(a.performanceTime) > toDate(b.performanceTime) ? 1 : -1
+        );
+      });
+
+      setEventsByDate(eventsByDate);
     })();
-  }, [storeName, db]);
+  }, [db]);
+
+  useEffect(() => {
+    updateScreen();
+  }, [updateScreen]);
 
   if (!db) return <Loading />;
 
   return (
-    <DbContext.Provider value={{ db, storeName, refresh: updateScreen }}>
+    <DbContext.Provider value={{ db, refresh: updateScreen }}>
       <div className={`${style.home} ${eventsByDate ? "" : style.homeLoading}`}>
         {!eventsByDate && <Loading />}
         {eventsByDate && (
@@ -175,7 +178,7 @@ const EventPage: FunctionalComponent<EventPageProps> = ({
                 justifyContent: "space-between"
               }}
             >
-              <h3>{routes["/" + storeName]}</h3>
+              <h3>Избранное</h3>
               <div>{offline && <NoSignal />}</div>
             </div>
 
@@ -183,13 +186,17 @@ const EventPage: FunctionalComponent<EventPageProps> = ({
               .sort()
               .filter((d) => Boolean(d))
               .map((date) => (
-                <Day
-                  key={date}
-                  name={date}
-                  events={eventsByDate[date]}
-                  timeColumnWidth={timeColumnWidth}
-                />
+                <Day key={date} name={date} events={eventsByDate[date]} />
               ))}
+            {Object.keys(eventsByDate).length === 0 && (
+              <div>
+                <p>Пока здесь ничего нет.</p>
+                <p>
+                  Кликайте на названия приглянувшихся вам ивентов, чтобы
+                  добавить их в этот список.
+                </p>
+              </div>
+            )}
           </Fragment>
         )}
       </div>
@@ -197,4 +204,4 @@ const EventPage: FunctionalComponent<EventPageProps> = ({
   );
 };
 
-export default EventPage;
+export default FavEvents;

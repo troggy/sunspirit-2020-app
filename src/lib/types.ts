@@ -12,4 +12,6 @@ export type Artist = {
 export type ArtistRecord = Artist & {
   normalizedName: string;
   sampleBuffer?: Blob;
+  fav?: boolean;
+  storeName?: string;
 };

@@ -18,8 +18,9 @@ import {
   PlayerContextType,
   defaultPlayerState
 } from "../../components/player-context";
-import { DownloadIcon, NoSignal } from "../../components/icons";
-import { DownloadContext } from "../../components/download-context";
+import { DownloadIcon, NoSignal, StarIcon } from "../../components/icons";
+import { DbContext } from "../../components/db-context";
+import FavStar from "../../components/FavStar";
 
 const Time = styled.div`
   width: 50px;
@@ -54,16 +55,26 @@ const PlayCell = styled.div`
 
 type MusicEventProps = {
   artist: ArtistRecord;
-  db: Db;
 };
 
-const MusicEvent = ({ artist, db }: MusicEventProps) => {
+const MusicEvent = ({ artist }: MusicEventProps) => {
   const [inProgress, setInProgress] = useState<boolean>(false);
-  const updateScreen = useContext(DownloadContext);
+  const ctx = useContext(DbContext);
   return (
     <div className={style.musicEvent}>
       <Time>{artist.performanceTime}</Time>
-      <ArtistName>{artist.name}</ArtistName>
+      <ArtistName
+        onClick={() => ctx?.db.toggleFav("artists", artist).then(ctx?.refresh)}
+      >
+        {artist.name}{" "}
+        {artist.fav ? (
+          <FavStar>
+            <StarIcon />
+          </FavStar>
+        ) : (
+          ""
+        )}
+      </ArtistName>
       <StageName name={artist.stage} />
       <PlayCell>
         {artist.sampleBuffer && <PlayButton data={artist.sampleBuffer} />}
@@ -78,10 +89,10 @@ const MusicEvent = ({ artist, db }: MusicEventProps) => {
             }}
             onClick={() => {
               setInProgress(true);
-              void db
+              void ctx?.db
                 .downloadSingle(artist)
                 .then(() => setInProgress(false))
-                .then(updateScreen);
+                .then(ctx?.refresh);
             }}
           >
             <DownloadIcon />
@@ -95,19 +106,17 @@ const MusicEvent = ({ artist, db }: MusicEventProps) => {
 type StageProps = {
   name: string;
   artists: ArtistRecord[];
-  db: Db;
 };
 
 const Stage: FunctionalComponent<StageProps> = ({
   name,
-  artists,
-  db
+  artists
 }: StageProps) => {
   return (
     <div>
       <h3>{name}</h3>
       {artists.map((a) => (
-        <MusicEvent key={a.name} artist={a} db={db} />
+        <MusicEvent key={a.name} artist={a} />
       ))}
     </div>
   );
@@ -285,8 +294,10 @@ const Music: FunctionalComponent = () => {
     })();
   }, [db]);
 
+  if (!db) return <Loading />;
+
   return (
-    <DownloadContext.Provider value={updateScreen}>
+    <DbContext.Provider value={{ db, refresh: updateScreen }}>
       <PlayerContext.Provider value={playerState}>
         <div
           className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}
@@ -325,18 +336,13 @@ const Music: FunctionalComponent = () => {
                 .sort()
                 .filter((d) => Boolean(d))
                 .map((date) => (
-                  <Stage
-                    key={date}
-                    name={date}
-                    artists={artistsByDate[date]}
-                    db={db}
-                  />
+                  <Stage key={date} name={date} artists={artistsByDate[date]} />
                 ))}
             </Fragment>
           )}
         </div>
       </PlayerContext.Provider>
-    </DownloadContext.Provider>
+    </DbContext.Provider>
   );
 };
 

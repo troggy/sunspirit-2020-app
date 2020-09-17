@@ -246,4 +246,11 @@ export class Db {
       })
     );
   }
+
+  async toggleFav(storeName: any, entry: ArtistRecord) {
+    return this.db.put(storeName, {
+      ...entry,
+      fav: !entry.fav
+    });
+  }
 }

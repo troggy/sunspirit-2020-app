@@ -41,7 +41,6 @@ const Pane = ({ close }: { close: (name: string) => void }) => {
             textAlign: "center",
             marginTop: route === "/fav" ? 90 : 0
           }}
-          activeClassName={style.active}
           href={route}
           onClick={() => close(routes[route])}
         >
@@ -69,7 +68,7 @@ const Nav: FunctionalComponent = () => {
   return (
     <Fragment>
       {menu && <Pane close={onNav} />}
-      <nav className={style.nav1} onClick={() => setMenu(!menu)}>
+      <nav className={style.nav} onClick={() => setMenu(!menu)}>
         {currentPage}{" "}
         <span style={{ paddingTop: "9px" }}>
           <ChevronDown />

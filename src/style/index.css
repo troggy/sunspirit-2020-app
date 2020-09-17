@@ -26,8 +26,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h3 {
-  font-family: "UbuntuRegular", "Helvetica Neue", arial, sans-serif;
+h1, h2, h3 {
+  font-family: "UbuntuBold", "Helvetica Neue", arial, sans-serif;
   font-weight: 700;
 }
 

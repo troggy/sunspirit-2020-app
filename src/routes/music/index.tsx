@@ -1,4 +1,4 @@
-import { FunctionalComponent, h } from "preact";
+import { FunctionalComponent, h, Fragment } from "preact";
 import * as style from "./style.css";
 import { useState, useEffect, useCallback } from "preact/hooks";
 import Loading from "../../components/loading";
@@ -169,13 +169,17 @@ const Music: FunctionalComponent = () => {
         className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}
       >
         {!artistsByDate && <Loading />}
-        {artistsByDate &&
-          Object.keys(artistsByDate)
-            .sort()
-            .filter((d) => Boolean(d))
-            .map((date) => (
-              <Stage key={date} name={date} artists={artistsByDate[date]} />
-            ))}
+        {artistsByDate && (
+          <Fragment>
+            <h1>Sunspirit 2020</h1>
+            {Object.keys(artistsByDate)
+              .sort()
+              .filter((d) => Boolean(d))
+              .map((date) => (
+                <Stage key={date} name={date} artists={artistsByDate[date]} />
+              ))}
+          </Fragment>
+        )}
       </div>
     </PlayerContext.Provider>
   );

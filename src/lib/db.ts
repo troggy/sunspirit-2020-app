@@ -52,7 +52,7 @@ export class Db {
     return Promise.all(
       artists.map(async (artist) => {
         const artistKey = key(artist);
-        void this.db
+        return this.db
           .get("artists", artistKey)
           .then((existingArtist) => {
             if (!existingArtist) return artist;
@@ -64,9 +64,14 @@ export class Db {
             if (
               existingArtist.sampleLink === artist.sampleLink &&
               existingArtist.sampleBuffer
-            )
+            ) {
               return mergedRecord;
-            return withDownloadedSample(mergedRecord);
+            }
+
+            return {
+              ...mergedRecord,
+              sampleBuffer: undefined
+            };
           })
           .then(async (artist) => {
             return this.db.put("artists", {
@@ -78,7 +83,45 @@ export class Db {
     );
   }
 
+  async getDownloadSize() {
+    const pendingArtists = await this.pendingArtists();
+    let total = 0;
+    await Promise.all(
+      pendingArtists.map(async (a) =>
+        fetch(a.sampleLink, { method: "HEAD" }).then((response) => {
+          total += Number.parseInt(
+            response.headers.get("Content-Length") ?? "0",
+            10
+          );
+        })
+      )
+    );
+    return total;
+  }
+
+  async downloadSamples(onProgress: (current: number, total: number) => void) {
+    const pendingArtists = await this.pendingArtists();
+    const totalSize = await this.getDownloadSize();
+    let done = 0;
+    return Promise.all(
+      pendingArtists.map(async (artist) => {
+        const withSample = await withDownloadedSample(artist);
+        if (withSample.sampleBuffer) {
+          onProgress((done += withSample.sampleBuffer.size), totalSize);
+        }
+
+        return this.db.put("artists", withSample);
+      })
+    );
+  }
+
   async getArtists() {
     return this.db.getAll("artists");
+  }
+
+  async pendingArtists() {
+    return this.getArtists().then((artists) =>
+      artists.filter((a) => !a.sampleBuffer && a.sampleLink)
+    );
   }
 }

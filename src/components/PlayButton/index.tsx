@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { PlayIcon, StopIcon } from "./icons";
+import { PlayIcon, StopIcon } from "../icons";
 import { useState, useContext, useCallback, useMemo } from "preact/hooks";
 import styled from "styled-components";
 import { PlayerContext } from "../player-context";

@@ -4,7 +4,8 @@
       "AllowedOrigins": ["*"],
       "AllowedHeaders": ["*"],
       "AllowedMethods": ["GET", "HEAD"],
-      "MaxAgeSeconds": 3000
+      "MaxAgeSeconds": 3000,
+      "ExposeHeaders": ["Content-Length"]
     }
   ]
 }

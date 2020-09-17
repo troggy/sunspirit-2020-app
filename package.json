@@ -31,7 +31,10 @@
         "version": "detect"
       }
     },
-    "envs": ["es2020", "browser"],
+    "envs": [
+      "es2020",
+      "browser"
+    ],
     "space": true,
     "prettier": true
   },
@@ -41,6 +44,7 @@
   },
   "dependencies": {
     "idb": "^5.0.5",
+    "is-offline": "^2.1.1",
     "preact": "^10.4.7",
     "preact-router": "^3.2.1",
     "styled-components": "^5.2.0",

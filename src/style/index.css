@@ -38,3 +38,15 @@ h1, h2, h3 {
 #app {
   height: 100%;
 }
+
+@keyframes Pulsate {
+  from {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.6;
+  }
+}

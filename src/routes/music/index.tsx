@@ -4,7 +4,8 @@ import {
   useState,
   useEffect,
   useCallback,
-  useLayoutEffect
+  useLayoutEffect,
+  useContext
 } from "preact/hooks";
 import Loading from "../../components/loading";
 import { ArtistRecord } from "../../lib/types";
@@ -18,6 +19,7 @@ import {
   defaultPlayerState
 } from "../../components/player-context";
 import { DownloadIcon, NoSignal } from "../../components/icons";
+import { DownloadContext } from "../../components/download-context";
 
 const Time = styled.div`
   width: 50px;
@@ -49,9 +51,12 @@ const PlayCell = styled.div`
 
 type MusicEventProps = {
   artist: ArtistRecord;
+  db: Db;
 };
 
-const MusicEvent = ({ artist }: MusicEventProps) => {
+const MusicEvent = ({ artist, db }: MusicEventProps) => {
+  const [inProgress, setInProgress] = useState<boolean>(false);
+  const updateScreen = useContext(DownloadContext);
   return (
     <div className={style.musicEvent}>
       <Time>{artist.performanceTime}</Time>
@@ -59,6 +64,26 @@ const MusicEvent = ({ artist }: MusicEventProps) => {
       <StageName name={artist.stage} />
       <PlayCell>
         {artist.sampleBuffer && <PlayButton data={artist.sampleBuffer} />}
+        {!artist.sampleBuffer && artist.sampleLink && (
+          <div
+            style={{
+              alignItems: "center",
+              display: "flex",
+              cursor: "pointer",
+              justifyContent: "center",
+              animation: inProgress ? "Pulsate 1s linear infinite" : "none"
+            }}
+            onClick={() => {
+              setInProgress(true);
+              void db
+                .downloadSingle(artist)
+                .then(() => setInProgress(false))
+                .then(updateScreen);
+            }}
+          >
+            <DownloadIcon />
+          </div>
+        )}
       </PlayCell>
     </div>
   );
@@ -67,17 +92,19 @@ const MusicEvent = ({ artist }: MusicEventProps) => {
 type StageProps = {
   name: string;
   artists: ArtistRecord[];
+  db: Db;
 };
 
 const Stage: FunctionalComponent<StageProps> = ({
   name,
-  artists
+  artists,
+  db
 }: StageProps) => {
   return (
     <div>
       <h3>{name}</h3>
       {artists.map((a) => (
-        <MusicEvent key={a.name} artist={a} />
+        <MusicEvent key={a.name} artist={a} db={db} />
       ))}
     </div>
   );
@@ -247,48 +274,66 @@ const Music: FunctionalComponent = () => {
     });
   }, [pendingDownload, db]);
 
-  return (
-    <PlayerContext.Provider value={playerState}>
-      <div
-        className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}
-      >
-        {!artistsByDate && <Loading />}
-        {artistsByDate && (
-          <Fragment>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-            >
-              <h3>Sunspirit 2020</h3>
-              <div>
-                {offline && <NoSignal />}
-                {!offline &&
-                  pendingDownload > 0 &&
-                  downloadProgress.total === 0 && (
-                    <DownloadButton size={pendingDownload} onClick={download} />
-                  )}
-                {!offline && downloadProgress.total > 0 && (
-                  <DownloadProgress
-                    current={downloadProgress.current}
-                    total={downloadProgress.total}
-                  />
-                )}
-              </div>
-            </div>
+  const updateScreen = useCallback(() => {
+    if (!db) return;
+    (async () => {
+      setArtists(await db.getArtists());
+      setPendingDownload(await db.getDownloadSize());
+    })();
+  }, [db]);
 
-            {Object.keys(artistsByDate)
-              .sort()
-              .filter((d) => Boolean(d))
-              .map((date) => (
-                <Stage key={date} name={date} artists={artistsByDate[date]} />
-              ))}
-          </Fragment>
-        )}
-      </div>
-    </PlayerContext.Provider>
+  return (
+    <DownloadContext.Provider value={updateScreen}>
+      <PlayerContext.Provider value={playerState}>
+        <div
+          className={`${style.home} ${artistsByDate ? "" : style.homeLoading}`}
+        >
+          {!artistsByDate && <Loading />}
+          {db && artistsByDate && (
+            <Fragment>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <h3>Sunspirit 2020</h3>
+                <div>
+                  {offline && <NoSignal />}
+                  {!offline &&
+                    pendingDownload > 0 &&
+                    downloadProgress.total === 0 && (
+                      <DownloadButton
+                        size={pendingDownload}
+                        onClick={download}
+                      />
+                    )}
+                  {!offline && downloadProgress.total > 0 && (
+                    <DownloadProgress
+                      current={downloadProgress.current}
+                      total={downloadProgress.total}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {Object.keys(artistsByDate)
+                .sort()
+                .filter((d) => Boolean(d))
+                .map((date) => (
+                  <Stage
+                    key={date}
+                    name={date}
+                    artists={artistsByDate[date]}
+                    db={db}
+                  />
+                ))}
+            </Fragment>
+          )}
+        </div>
+      </PlayerContext.Provider>
+    </DownloadContext.Provider>
   );
 };
 

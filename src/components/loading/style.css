@@ -6,15 +6,3 @@
   align-items: center;
   animation: Pulsate 1s linear infinite;
 }
-
-@keyframes Pulsate {
-  from {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.6;
-  }
-}

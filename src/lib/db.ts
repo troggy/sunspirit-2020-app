@@ -115,6 +115,11 @@ export class Db {
     );
   }
 
+  async downloadSingle(artist: ArtistRecord) {
+    const withSample = await withDownloadedSample(artist);
+    return this.db.put("artists", withSample);
+  }
+
   async getArtists() {
     return this.db.getAll("artists");
   }

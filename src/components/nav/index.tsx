@@ -8,8 +8,11 @@ const Nav: FunctionalComponent = () => {
       <Link activeClassName={style.active} href="/">
         Музыка
       </Link>
-      <Link activeClassName={style.active} href="/activities">
-        Активности
+      <Link activeClassName={style.active} href="/cinema">
+        Кино
+      </Link>
+      <Link activeClassName={style.active} href="/knowledge">
+        Знания
       </Link>
     </nav>
   );

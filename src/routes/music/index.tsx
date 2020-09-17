@@ -232,7 +232,7 @@ const Music: FunctionalComponent = () => {
     if (!db) return;
     void db.getArtists().then(async (artists) => {
       setArtists(artists);
-      await db.reload();
+      await db.reloadMusic();
       setArtists(await db.getArtists());
       setPendingDownload(await db.getDownloadSize());
     });

@@ -1,9 +1,19 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 import { ArtistRecord, Artist } from "./types";
-import { readMusicSpreadsheet } from "./spreadsheet";
+import { readMusicSpreadsheet, readSpreadsheet } from "./spreadsheet";
 
 interface ArtistsDbSchema extends DBSchema {
   artists: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
+  cinema: {
+    value: ArtistRecord;
+    key: string;
+    indexes: { "by-date": Date };
+  };
+  knowledge: {
     value: ArtistRecord;
     key: string;
     indexes: { "by-date": Date };
@@ -23,6 +33,8 @@ const withDownloadedSample = async (artist: ArtistRecord) => {
 
 const key = (artist: Artist) => artist.name.replace(/[^\w\d]/g, "");
 
+const eventKey = (artist: Artist) => artist.personaLink.replace(/[^\w\d]/g, "");
+
 export class Db {
   private readonly db: IDBPDatabase<ArtistsDbSchema>;
 
@@ -31,18 +43,35 @@ export class Db {
   }
 
   static async init() {
-    const db = await openDB<ArtistsDbSchema>("sunspiritApp", 1, {
+    const db = await openDB<ArtistsDbSchema>("sunspiritApp", 9, {
       upgrade(db) {
-        const artistsStore = db.createObjectStore("artists", {
-          keyPath: "normalizedName"
-        });
-        artistsStore.createIndex("by-date", "performanceDate");
+        console.log(db.objectStoreNames);
+        if (!db.objectStoreNames.contains("artists")) {
+          const artistsStore = db.createObjectStore("artists", {
+            keyPath: "normalizedName"
+          });
+          artistsStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("cinema")) {
+          const cinemaStore = db.createObjectStore("cinema", {
+            keyPath: "normalizedName"
+          });
+          cinemaStore.createIndex("by-date", "performanceDate");
+        }
+
+        if (!db.objectStoreNames.contains("knowledge")) {
+          const knowledgeStore = db.createObjectStore("knowledge", {
+            keyPath: "normalizedName"
+          });
+          knowledgeStore.createIndex("by-date", "performanceDate");
+        }
       }
     });
     return new Db(db);
   }
 
-  async reload() {
+  async reloadMusic() {
     const artists = await readMusicSpreadsheet();
     const existingArtists = await this.getArtists();
     existingArtists
@@ -127,6 +156,47 @@ export class Db {
   async pendingArtists() {
     return this.getArtists().then((artists) =>
       artists.filter((a) => !a.sampleBuffer && a.sampleLink)
+    );
+  }
+
+  async getAll(storeName: string) {
+    return this.db.getAll(storeName as any);
+  }
+
+  async getKnowledgeEvents() {
+    return this.getAll("knowledge");
+  }
+
+  async getCinemaEvents() {
+    return this.getAll("cinema");
+  }
+
+  async reload(storeName: any) {
+    const events = await readSpreadsheet(storeName);
+    const existingEvents = await this.getAll(storeName);
+    existingEvents
+      .filter((a) => !events.find((a1) => eventKey(a1) === a.normalizedName))
+      .forEach(async (a) => this.db.delete(storeName, a.normalizedName));
+
+    return Promise.all(
+      events.map(async (event) => {
+        const evKey = eventKey(event);
+        return this.db
+          .get(storeName, evKey)
+          .then((existingEvent) => {
+            if (!existingEvent) return event;
+            return {
+              ...existingEvent,
+              ...event
+            };
+          })
+          .then(async (event) => {
+            return this.db.put(storeName, {
+              ...event,
+              normalizedName: evKey
+            });
+          });
+      })
     );
   }
 }

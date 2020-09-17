@@ -262,7 +262,7 @@ const Music: FunctionalComponent = () => {
                 justifyContent: "space-between"
               }}
             >
-              <h1>Sunspirit 2020</h1>
+              <h3>Sunspirit 2020</h3>
               <div>
                 {offline && <NoSignal />}
                 {!offline &&

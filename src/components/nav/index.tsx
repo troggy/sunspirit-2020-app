@@ -38,8 +38,7 @@ const Pane = ({ close }: { close: (name: string) => void }) => {
           key={route}
           style={{
             width: "100%",
-            textAlign: "center",
-            marginTop: route === "/fav" ? 90 : 0
+            textAlign: "center"
           }}
           href={route}
           onClick={() => close(routes[route])}
